@@ -20,8 +20,6 @@ import javax.swing.JRadioButtonMenuItem;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 public class Sakregister extends JFrame {
 
@@ -111,11 +109,7 @@ public class Sakregister extends JFrame {
 					NyApparat1 nysmy = new NyApparat1();
 					nysmy.setVisible(true);
 					
-				} else {
-					System.err.println("Error");
-					Fel1 fel = new Fel1();
-					fel.setVisible(true);
-				}
+				}		
 			}	
 		}
 		);
@@ -124,20 +118,7 @@ public class Sakregister extends JFrame {
 		JButton btnVisa = new JButton("Visa");
 		btnVisa.setBounds(175, 220, 89, 23);
 		btnVisa.addActionListener(new Visa());
-		
-		btnVisa.addActionListener(new ActionListener() { //ugly way to write code
-		
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				//for(NyttSmycke ns : strings)    //usually should be for(Smycke n: name of arraylist) {} 
-				//nysmy.toString();
-			}
-	});	
-		
-		
-		
 		contentPane.add(btnVisa);
-
 		
 		JButton btnBrskrasch = new JButton("B\u00F6rskrasch");
 		btnBrskrasch.setBounds(267, 220, 89, 23);
@@ -150,14 +131,11 @@ public class Sakregister extends JFrame {
 	
 	
 	
-	class Visa implements ActionListener{ //unimplement
+	class Visa implements ActionListener{
 		public void actionPerformed(ActionEvent ave) {
 			System.out.println("Test");
 		}
 	}
-	
-	
-
 	
 	class ComboClick implements ActionListener{
 		public void actionPerformed(ActionEvent ave) {
@@ -303,11 +281,8 @@ public class Sakregister extends JFrame {
 		private JButton btnOkSmycke;
 		private JButton btnCancelSmycke;
 		private JLabel lblImage;
-		boolean isGold = false;  //perhaps inside
 
 		NyttSmycke1(){
-			
-			
 			setTitle("Nytt Smycke");
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			setBounds(100, 100, 268, 161);
@@ -337,37 +312,10 @@ public class Sakregister extends JFrame {
 			JCheckBox chckbxAvGuld = new JCheckBox("Av guld");
 			chckbxAvGuld.setBounds(129, 60, 97, 23);
 			contentPane.add(chckbxAvGuld);
-			chckbxAvGuld.addItemListener(new ItemListener(){
-				public void itemStateChanged(ItemEvent e){
-					if(e.getStateChange() == ItemEvent.SELECTED){
-						isGold = true;
-					} else {
-						isGold = false;
-					}  //throwable here if ever
-				}
-			});
-			
-			//button if Textbox empty && button pressed = throw error.
 			
 			btnOkSmycke = new JButton("OK");
 			btnOkSmycke.setBounds(58, 90, 64, 23);
 			contentPane.add(btnOkSmycke);
-			btnOkSmycke.addActionListener(new ActionListener(){
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (txtsmyckeStenar != null || getAdelsten() != 0){  //flag for problem
-						NyttSmycke1 nysmy = new NyttSmycke1(); //super recursive???
-						//Smycke sm = new Smycke(n, a, an); 
-					} else {
-						System.err.println("A Field is Empty");
-						Fel1 problemsmyck = new Fel1();
-						problemsmyck.setVisible(true);
-					}
-					
-				}
-												
-			});
 			
 			btnCancelSmycke = new JButton("Cancel");
 			btnCancelSmycke.setBounds(127, 90, 87, 23);
@@ -378,79 +326,7 @@ public class Sakregister extends JFrame {
 			lblImage.setBounds(23, 14, 37, 39);
 			contentPane.add(lblImage);
 		}
-		
-		public String getNamn() {
-			return txtSmyckeNamn.getText();
-		}		
-		public int getAdelsten() {  //parsed here
-			return Integer.parseInt(txtsmyckeStenar.getText());
-		}
-		public Boolean checkGold() {  //uppercasted Boolean 'normally' boolean.
-			return isGold;
-		}
-				
-		public int getValue(){ //getValue of this class each one has diff GetVal
-			int kost;
-			int smyckePris;
-			if(isGold == false){
-				kost = 2000;
-			} else {
-				kost = 700;
-			}
-			smyckePris = ( Integer.parseInt(txtsmyckeStenar.getText()) * 500 ) + kost;  //used to be adelstenar
-			return smyckePris;				//parseFloat? .2%f
-		}
-		
-		public String toString(){						
-			return "Smycke: " + txtSmyckeNamn.getText() + " Värde:" + getValue()
-					+ " stenar:"+Integer.parseInt(txtsmyckeStenar.getText())+ " silver";
-		} //FIND A WAY TO PARSE FLOAT TO CERTAIN DECIMAL //Check helpdoc in Git
-		  //getValue is a really ugly way to mess things up
 	}
-	
-	class Fel1 extends JFrame { //have internal Fel per nested class?
-
-		private JPanel contentPane;
-
-		public Fel1() {
-//			JTextField status = new JTextField(10);   //masterlist get bool
-			setTitle("Fel");
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			setBounds(100, 100, 174, 121);
-			contentPane = new JPanel();
-			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-			setContentPane(contentPane);
-			contentPane.setLayout(null);
-			
-			JLabel lblFelInmatning = new JLabel("Fel inmatning!");
-			lblFelInmatning.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			lblFelInmatning.setBounds(56, 25, 84, 14);
-			contentPane.add(lblFelInmatning);
-			
-			JButton btnOkFel = new JButton("OK");
-			btnOkFel.setBounds(66, 48, 53, 23);
-			contentPane.add(btnOkFel);
-			btnOkFel.addActionListener(new ActionListener(){
-				@Override
-				public void actionPerformed(ActionEvent e){
-					Fel1.getFrames();  //close window  //placeholder getFrames per now.
-					
-					
-					
-				}
-				
-			});
-			
-			JLabel label = new JLabel("");
-			label.setIcon(new ImageIcon(Fel.class.getResource("/javax/swing/plaf/metal/icons/ocean/error.png")));
-			label.setBounds(14, 11, 32, 42);
-			contentPane.add(label);
-		}		
-//		public String getNamn() {
-//			return status.getText();
-//		}
-	}
-
 	
 	
 }
