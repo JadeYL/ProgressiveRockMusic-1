@@ -1,0 +1,3 @@
+Integer.parseInt(txtsmyckeStenar.getText()) should be 
+
+Double.parseDouble(txtsmyckeStenar.getText())
