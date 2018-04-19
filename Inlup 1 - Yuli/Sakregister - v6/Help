@@ -1,0 +1,37 @@
+
+!!!maybe loop is not needed because you actiontrigger the button Visa anyways. the onlything it'll do is show or append to the text everytime. 
+
+
+smycke -> 9   considered [Aktie: 
+Aktie -> 11   considered , Apparat: 
+Apparat -> 10 considered , Smycke:
+
+
+
+tips for Combobox.  Instead of creating new instance everytime. make it this?
+
+Job[] jobs = new Job[] {
+        new Job("Developer"), new Job("Designer"), new Job("Tester")
+    };
+ 
+MyComboBoxModel myModel = new MyComboBoxModel(jobs);
+JComboBox<Job> jobList = new JComboBox<Job>(myModel);
+
+
+In Igelkott class. Notice how many of the classes are nested inside eachother.
+Nestclasses etc.
+
+
+
+When you dynamically add/remove components from a visible GUI then you need to do:
+
+panel.add(...);
+panel.revalidate();
+panel.repaint();
+
+
+
+
+
+
+ENDGAME - change int in item to float.
