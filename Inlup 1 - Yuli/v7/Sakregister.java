@@ -51,18 +51,11 @@ public class Sakregister extends JFrame {
 	
 	/**  Main  */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Sakregister frame = new Sakregister();
-					frame.setVisible(true);
-				
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});	
+
+		Sakregister frame = new Sakregister();
+		frame.setVisible(true);
 	}
+
 
 
 	
