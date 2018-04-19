@@ -1,5 +1,10 @@
 
+
 public class Aktie extends Item {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private float kurs;
 	int antal;
 	
@@ -9,8 +14,7 @@ public class Aktie extends Item {
 		kurs = k;
 		
 	}
-	
-	//Kursen ska kunna ändras
+
 	public void setKurs(float kurs){
 		this.kurs = kurs;
 	}

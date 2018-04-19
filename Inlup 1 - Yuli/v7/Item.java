@@ -2,15 +2,15 @@
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class Item extends ObjectRenamedForNow implements Serializable {
+public class Item  extends ObjectRenamedForNow implements Serializable {
 	protected String name;
 	protected int value;
 	
 	public Item(String n){
 		name = n;
 	}
-	
-	public void write(){ //removed override. may be unstable on other programs.	
+	@Override
+	public void write(){
 	}
 	
 	public float getValue(){
@@ -23,7 +23,7 @@ public class Item extends ObjectRenamedForNow implements Serializable {
 	}
 	
 	public Item getItem(){
-		return null;  //referred in the child classes later
+		return null;  //referred in child classes later
 	}
 	
 }

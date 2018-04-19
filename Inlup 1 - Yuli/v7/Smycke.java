@@ -1,6 +1,10 @@
 
 
 public class Smycke extends Item {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	int adelstenar;
 	boolean isGold; //mark for was Boolean
 	

@@ -1,15 +1,9 @@
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
 import java.awt.Font;
-import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
@@ -17,26 +11,24 @@ import javax.swing.JFormattedTextField;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JRadioButtonMenuItem;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-import java.util.regex.Pattern;
+
+
 
 public class Sakregister extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	String[] comboList = new String[]{"Smycke", "Aktie","Apparat"};	
 	ArrayList<Item> alla = new ArrayList<>();
@@ -51,7 +43,6 @@ public class Sakregister extends JFrame {
 		Sakregister frame = new Sakregister();
 		frame.setVisible(true);
 	}
-
 
 
 	
@@ -83,6 +74,7 @@ public class Sakregister extends JFrame {
 		comboBoxNew.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
 				JComboBox<String> combo = (JComboBox<String>) e.getSource();
 				String selected = (String) combo.getSelectedItem();
 				
@@ -145,9 +137,10 @@ public class Sakregister extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(textArea != null){
 					textArea.setText("");
-				}				
+				}
+				
+				
 				textArea.append(alla.toString().replace("[", "").replace("]", "").replace(", ", ""));
-						
 			}
 	});		
 		contentPane.add(btnVisa);
@@ -249,6 +242,10 @@ public class Sakregister extends JFrame {
 	/** Nyapparat */
 	class NyApparat1 extends JFrame {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private JPanel contentPane;
 		private JTextField txtNamnApparat;
 		private JTextField txtPrisApparat;
@@ -302,11 +299,21 @@ public class Sakregister extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					
 					try {
+						int valuSlitage = Integer.valueOf(txtSlitage.getText());
+						
 						if (txtNamnApparat != null && txtPrisApparat != null && txtSlitage != null){
-						NyApparat1 nyap = new NyApparat1();
+						
 							Apparat appa = new Apparat(getApparatNamn(), getInkopsPris(), getSlitage());
-							alla.add(appa);							
-						}
+							
+							
+							if (valuSlitage >= 0 && valuSlitage <= 10) {
+								alla.add(appa);	
+							} else {
+								Fel1 appFel = new Fel1();
+								appFel.setVisible(true);
+							}
+							
+						} 
 							
 					} catch (NumberFormatException e1) {
 						
@@ -355,6 +362,10 @@ public class Sakregister extends JFrame {
 	/** NyAktie */
 	class NyAktie1 extends JFrame {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private JPanel contentPane;
 		private JTextField txtAktieNamn;
 		private JTextField txtAntalAktie;
@@ -391,8 +402,7 @@ public class Sakregister extends JFrame {
 			contentPane.add(txtAntalAktie);
 			txtAntalAktie.setColumns(10);
 			
-
-			DecimalFormat dc = new DecimalFormat("##.##");			
+		
 			txtAktieKurs = new JFormattedTextField();
 			txtAktieKurs.setBounds(117, 64, 99, 20);
 			contentPane.add(txtAktieKurs);
@@ -415,8 +425,7 @@ public class Sakregister extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 										
 					try {
-						if (txtAktieNamn != null && txtAntalAktie != null && txtAktieKurs != null ){
-							NyAktie1 nyak = new NyAktie1();							
+						if (txtAktieNamn != null && txtAntalAktie != null && txtAktieKurs != null ){				
 							Aktie ak = new Aktie(getAktieNamn(), getAktieAntal(), getAktieKurs());						
 							alla.add(ak);
 						}
@@ -457,6 +466,10 @@ public class Sakregister extends JFrame {
 	/** NySmycke */
 	class NyttSmycke1 extends JFrame {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private JPanel contentPane;
 		private JTextField txtSmyckeNamn;
 		private JTextField txtsmyckeStenar;
@@ -514,8 +527,7 @@ public class Sakregister extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					
 					try {
-						if (txtsmyckeStenar != null && getAdelsten() != 0){
-							NyttSmycke1 nysmy = new NyttSmycke1();			
+						if (txtsmyckeStenar != null && getAdelsten() != 0){		
 							Smycke ms = new Smycke(getNamn(), getAdelsten(), isGold);
 							alla.add(ms);
 							
@@ -578,6 +590,10 @@ public class Sakregister extends JFrame {
 	/**  Class Fel poppup **/
 	class Fel1 extends JFrame {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private JPanel contentPane;
 
 		public Fel1() {
