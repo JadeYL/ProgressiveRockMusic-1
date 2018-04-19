@@ -41,10 +41,6 @@ public class Sakregister extends JFrame {
 	String[] comboList = new String[]{"Smycke", "Aktie","Apparat"};	
 	ArrayList<Item> alla = new ArrayList<>();
 	ArrayList<Object> superList = new ArrayList<Object>();	
-	
-	
-	//Cyclic barrier for Thread
-	final CyclicBarrier gate = new CyclicBarrier(1);
 		
 	//iterators
 	Iterator<Item> itItem = alla.iterator();
@@ -149,21 +145,9 @@ public class Sakregister extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(textArea != null){
 					textArea.setText("");
-				}
-				
-				/** Thread evoker **/
-				Thread t1 = new Thread(){
-					public void run(){
-						try {
-							gate.await();
-							textArea.append(alla.toString().replace("[", "").replace("]", "").replace(", ", ""));
-						} catch (InterruptedException | BrokenBarrierException e) {
-							e.printStackTrace();
-						}						
-					}
-				};
-				// start thread
-				t1.start();							
+				}				
+				textArea.append(alla.toString().replace("[", "").replace("]", "").replace(", ", ""));
+						
 			}
 	});		
 		contentPane.add(btnVisa);
