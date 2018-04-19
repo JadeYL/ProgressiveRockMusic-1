@@ -1,20 +1,20 @@
-package Inlup1.TestCode;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class Item extends ObjectRenamedForNow implements Serializable {
 	protected String name;
 	protected int value;
 	
 	public Item(String n){
-		name = n; //or this
+		name = n;
 	}
 	
-	public void write(){ //override removed. thing is unstable on other platforms.
-		
+	public void write(){ //removed override. may be unstable on other programs.	
 	}
 	
-	public int getValue(){  //change to SetFloat eventually please.
+	public float getValue(){
+		String numberAsString = String.format("%.2f",new BigDecimal(value));
 		return value;
 	}
 	
@@ -23,7 +23,7 @@ public class Item extends ObjectRenamedForNow implements Serializable {
 	}
 	
 	public Item getItem(){
-		return null;  //referred in child classes later
+		return null;  //referred in the child classes later
 	}
 	
 }

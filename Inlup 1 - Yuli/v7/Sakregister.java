@@ -1,14 +1,9 @@
-package Inlup1.TestCode;
-
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
-import Lecture5.IgelReg;
-import Lecture5.Igelkott;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,6 +13,7 @@ import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -27,53 +23,49 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.regex.Pattern;
 
 public class Sakregister extends JFrame {
 
 	private JPanel contentPane;
-	String[] comboList = new String[]{"Smycke", "Aktie","Apparat"};
-	ArrayList<Smycke> allaSmycke = new ArrayList<>();  //then make arraylist of Arraylists cause why not :3
-	ArrayList<Aktie> allaAktie = new ArrayList<>();
-	ArrayList<Apparat> allaApparat = new ArrayList<>();
-	int arraySuper = allaSmycke.size() + allaAktie.size();
+	String[] comboList = new String[]{"Smycke", "Aktie","Apparat"};	
+	ArrayList<Item> alla = new ArrayList<>();
+	ArrayList<Object> superList = new ArrayList<Object>();	
 	
+	
+	//Cyclic barrier for Thread
+	final CyclicBarrier gate = new CyclicBarrier(1);
+		
 	//iterators
-	Iterator<Smycke> itSmyck = allaSmycke.iterator();
-	Iterator<Aktie> itAktie = allaAktie.iterator();
-	Iterator<Apparat> itApparat = allaApparat.iterator();
-
+	Iterator<Item> itItem = alla.iterator();
+	
+	/**  Main  */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					
-					//corecode here
 					Sakregister frame = new Sakregister();
 					frame.setVisible(true);
-					
-					
-					
-					
-					
-					
-					
-					
-					
+				
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-		});
-		
-		
+		});	
 	}
 
-	/**
-	 * Create the frame.
-	 */
+
+	
 	public Sakregister() {
 		setTitle("Sakregister");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -92,15 +84,7 @@ public class Sakregister extends JFrame {
 		JLabel lblSortering = new JLabel("Sortering");
 		lblSortering.setBounds(366, 135, 55, 14);
 		contentPane.add(lblSortering);
-		
-//		public void checkSelectedRadioButton(){
-//			if(rdbtnNamn.isSelected()){
-//				rdbtnVrde.setSelected(false);
-//			}
-//		}
-		
-		
-		
+
 		JLabel lblNytt = new JLabel("Nytt:");
 		lblNytt.setBounds(42, 224, 31, 14);
 		contentPane.add(lblNytt);
@@ -111,7 +95,7 @@ public class Sakregister extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JComboBox<String> combo = (JComboBox<String>) e.getSource();
-				String selected = (String) combo.getSelectedItem(); //could use getSelected Index
+				String selected = (String) combo.getSelectedItem();
 				
 				if(selected.equals("Smycke")){
 					System.out.println("Smycke");
@@ -137,40 +121,58 @@ public class Sakregister extends JFrame {
 		}
 		);
 		contentPane.add(comboBoxNew);
-				
+
+		
 		TextArea textArea = new TextArea();
 		textArea.setBounds(10, 31, 350, 178);
 		contentPane.add(textArea);
+				
+		JRadioButton rdbtnNamn = new JRadioButton("Namn");
+		rdbtnNamn.setBounds(362, 156, 109, 23);
+		contentPane.add(rdbtnNamn);
 		
+		JRadioButton rdbtnVrde = new JRadioButton("V\u00E4rde");
+		rdbtnVrde.setBounds(362, 186, 109, 23);
+		contentPane.add(rdbtnVrde);
+		
+		
+		
+		/** ---------------------------------
+		 * Add all elements onto superlist 
+		 *  Not really needed. but used here
+		 *  for Antiquated code. 
+		 *  ---------------------------------*/
+		
+		superList.add(alla);
+
+		
+		/** Button Visa */
 		JButton btnVisa = new JButton("Visa");
 		btnVisa.setBounds(175, 220, 89, 23);
-		btnVisa.addActionListener(new Visa());
 		
 		btnVisa.addActionListener(new ActionListener() {
-		
-			
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-								
-				for(int ii = 0;ii<allaAktie.size()+allaApparat.size()+allaSmycke.size();ii++){
+				if(textArea != null){
 					textArea.setText("");
-					System.out.println("Printing Smycke");				
-					String texttext = allaSmycke.toString();				
-					textArea.append(texttext.replace("[", "").replace("]", "").replace(", ", ""));
-					System.out.println("printing Aktie");
-					String textak = allaAktie.toString();
-					textArea.append(textak.replace("[", "").replace("]", "").replace(", ", ""));
-					System.out.println("printing Apparat");
-					String app = allaApparat.toString();
-					textArea.append(app.replace("[", "").replace("]", "").replace(", ", ""));
-					
-				}							
+				}
+				
+				/** Thread evoker **/
+				Thread t1 = new Thread(){
+					public void run(){
+						try {
+							gate.await();
+							textArea.append(alla.toString().replace("[", "").replace("]", "").replace(", ", ""));
+						} catch (InterruptedException | BrokenBarrierException e) {
+							e.printStackTrace();
+						}						
+					}
+				};
+				// start thread
+				t1.start();							
 			}
-	});	
-		
-		
-		
+	});		
 		contentPane.add(btnVisa);
 
 		
@@ -182,79 +184,67 @@ public class Sakregister extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				textArea.setText("");
-				allaSmycke.removeAll(allaSmycke);
-				allaAktie.removeAll(allaAktie);
-				allaApparat.removeAll(allaApparat);
-				//System.out.println(allaApparat.get(0));
-				
+				alla.removeAll(alla);				
 			}
 		});
 		
+		
+		
 		/** radio buttons **/
-		
-		JRadioButton rdbtnNamn = new JRadioButton("Namn");
-		rdbtnNamn.setBounds(362, 156, 109, 23);
-		contentPane.add(rdbtnNamn);
-		
-		JRadioButton rdbtnVrde = new JRadioButton("V\u00E4rde");
-		rdbtnVrde.setBounds(362, 186, 109, 23);
-		contentPane.add(rdbtnVrde);
-		
 		rdbtnNamn.addActionListener(new ActionListener() {			
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("selected sort name");
+			public void actionPerformed(ActionEvent e) { 
+				System.out.println("");
 				if(rdbtnNamn.isSelected()){
-					rdbtnVrde.setSelected(false);
 					
-					String sortnames = textArea.getText();
-					
-					String sort2 = sortnames.replaceAll("Smycke:", "# ").replaceAll("Apparat:", "# ").replaceAll("Aktie:", "# ");
-					System.out.println(sort2); //please find a way to reconsolidate. Perhaps contains slitage etc = bla
-					String[] sortArray = sort2.split("#");  //maybe not needed
-					//first thing on this array is nothing.
-					System.out.println("print array");
-					System.out.println(sortArray[1]);  //tester
-					Arrays.sort(sortArray);  //probs need to do String x = arrays.sort etc.
-					
-					String joined2 = String.join("#", sortArray);
-					String joined4 = joined2.replaceAll("# ", "#");
-					textArea.setText("");
-					
-					String containsStenar ="stenar";
-					String containsKurs = "kurs";
-					String containsSlitage = "slitage";
-					
-					//Iterate here
-					if(joined4.toLowerCase().indexOf(containsStenar.toLowerCase()) != -1){
-						String joined3 = joined4.replaceAll("#", "Smycke:");
-						textArea.setText(joined3);
-						System.out.println("found case: Smycke:");						
-					}
-					if(joined4.toLowerCase().indexOf(containsKurs.toLowerCase()) != -1){
-						String joined3 = joined4.replaceAll("#", "kurs:");
-						textArea.setText(joined3);
-						System.out.println("found case: Aktie:");						
-					}
-					if(joined4.toLowerCase().indexOf(containsSlitage.toLowerCase()) != -1){
-						String joined3 = joined4.replaceAll("#", "Apparat:");
-						textArea.setText(joined3);
-						System.out.println("found case: Apparat:");						
-					}
-					
-					/** PROBLEM :  Om sifror räknas som namn kommer sifror ex. 15 vara mindre än 2 pga Java sortstyle
-					 * 				Brukar inte vara något problem när det gäller namn.  **/
-					
-					
-					
-					/**   ALTERNATE FIX. Make sure all factors of characters enter same Index. like
-					 * 	  ¤¤Aktie
-					 * 	  Apparat
-					 *    ¤Smycke			¤Represents whitespace. funkar superbra när man ska sortera.**/
-				}
-				
+					/** Sorteras via Getname 
+					 * 
+					 *  kunde använda något som 
+					 *  alla.sort((y, x) -> Integer.compare((int)x.getValue(), (int)y.getValue())); istället fast för sortname*/
+										
+					if(rdbtnNamn.isSelected()){
+						rdbtnVrde.setSelected(false);
+						System.out.println("SortName");
+						String sortnames = textArea.getText();
+						String sort2 = sortnames.replaceAll("Smycke:", "#Smycke:").replaceAll("Apparat:", "#Apparat:").replaceAll("Aktie:", "#Aktie:");
+						String[] sortArray = sort2.split("#");  
+						ArrayList<String> sortRegion = new ArrayList<String>(Arrays.asList(sortArray));
+						Collections.sort(sortRegion);						
+						String joined2 = String.join("#", sortRegion);
+						String joined4 = joined2.replaceAll("# ", "#");
+						textArea.setText("");
+						
+						/**    Seperator helper function for Formatting strings between Stenar Kurs and Slitage   **/
+						String containsStenar ="stenar";
+						String containsKurs = "kurs";
+						String containsSlitage = "slitage";
+																		
+						/**  Sort by Name   **/
+						if(joined4.toLowerCase().indexOf(containsStenar.toLowerCase()) != -1){
+							String joined3 = joined4.replaceAll("#Smycke:", "Smycke:");
+							textArea.setText(joined3);
+							System.out.println("found case: Smycke:");						
+						}												
+						if(joined4.toLowerCase().indexOf(containsKurs.toLowerCase()) != -1){
+							String joined3 = joined4.replaceAll("#Aktie:", "Aktie:");
+							textArea.setText(joined3);
+							System.out.println("found case: Aktie:");						
+						}
+						if(joined4.toLowerCase().indexOf(containsSlitage.toLowerCase()) != -1){
+							String joined3 = joined4.replaceAll("#Apparat:", "Apparat:");
+							textArea.setText(joined3);
+							System.out.println("found case: Apparat:");						
+						}						
+						String joined3 = joined4.replaceAll("#Smycke:", "Smycke:").replaceAll("#Aktie:", "Aktie:").replaceAll("#Apparat:", "Apparat:");
+						textArea.setText(joined3);																																		
+					}				
+					if(rdbtnVrde.isSelected()){
+						rdbtnNamn.setSelected(false); 						
+					}																				
+				}				
 			}
-		});				
+		});		
+		
 		rdbtnVrde.addActionListener(new ActionListener() {
 			
 			@Override
@@ -263,6 +253,13 @@ public class Sakregister extends JFrame {
 				if(rdbtnVrde.isSelected()){
 					rdbtnNamn.setSelected(false);
 					
+
+					alla.sort((y, x) -> Integer.compare((int)x.getValue(), (int)y.getValue()));				
+					textArea.setText(superList.toString().replace("[", "").replace("]", "").replace(", ", ""));
+					
+					
+					
+					
 				}
 				
 			}
@@ -270,26 +267,9 @@ public class Sakregister extends JFrame {
 
 		
 	}
-	
-	
-	
-	class Visa implements ActionListener{ //unimplement
-		public void actionPerformed(ActionEvent ave) {
-			System.out.println("Test");
-		}
-	}
-	
-	
 
 	
-	class ComboClick implements ActionListener{
-		public void actionPerformed(ActionEvent ave) {
-//			if (comboBoxNew.getSelectedItem().toString() == Smycke){
-//				
-//			}
-		}
-	}
-	
+	/** Nyapparat */
 	class NyApparat1 extends JFrame {
 
 		private JPanel contentPane;
@@ -322,7 +302,7 @@ public class Sakregister extends JFrame {
 			contentPane.add(txtNamnApparat);
 			txtNamnApparat.setColumns(10);
 			
-			txtPrisApparat = new JTextField();
+			txtPrisApparat = new JFormattedTextField();
 			txtPrisApparat.setBounds(112, 39, 86, 20);
 			contentPane.add(txtPrisApparat);
 			txtPrisApparat.setColumns(10);
@@ -346,15 +326,17 @@ public class Sakregister extends JFrame {
 					
 					try {
 						if (txtNamnApparat != null && txtPrisApparat != null && txtSlitage != null){
-							NyApparat1 nyap = new NyApparat1();		
-							Apparat ap = new Apparat(getApparatNamn(), getInkopsPris(), getSlitage());
-							allaApparat.add(ap);
-							
+						NyApparat1 nyap = new NyApparat1();
+							Apparat appa = new Apparat(getApparatNamn(), getInkopsPris(), getSlitage());
+							alla.add(appa);							
 						}
 							
 					} catch (NumberFormatException e1) {
-						JOptionPane.showMessageDialog(Sakregister.this, "Fel indata!");
+						
+						Fel1 appFel = new Fel1();
+						appFel.setVisible(true);																		
 					}
+					dispose();
 					
 				}
 												
@@ -365,9 +347,15 @@ public class Sakregister extends JFrame {
 			btnCancelApparat = new JButton("Cancel");
 			btnCancelApparat.setBounds(122, 98, 76, 23);
 			contentPane.add(btnCancelApparat);
+			btnCancelApparat.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					dispose();				
+				}
+			});	
 			
-			label = new JLabel("");
-			label.setIcon(new ImageIcon(NyApparat.class.getResource("/javax/swing/plaf/metal/icons/ocean/question.png")));
+			label = new JLabel("");		
+			label.setIcon(new ImageIcon(Sakregister.class.getResource("/javax/swing/plaf/metal/icons/ocean/question.png")));
 			label.setBounds(10, 11, 32, 32);
 			contentPane.add(label);
 			
@@ -387,6 +375,7 @@ public class Sakregister extends JFrame {
 
 	}
 	
+	/** NyAktie */
 	class NyAktie1 extends JFrame {
 
 		private JPanel contentPane;
@@ -425,7 +414,9 @@ public class Sakregister extends JFrame {
 			contentPane.add(txtAntalAktie);
 			txtAntalAktie.setColumns(10);
 			
-			txtAktieKurs = new JTextField();
+
+			DecimalFormat dc = new DecimalFormat("##.##");			
+			txtAktieKurs = new JFormattedTextField();
 			txtAktieKurs.setBounds(117, 64, 99, 20);
 			contentPane.add(txtAktieKurs);
 			txtAktieKurs.setColumns(10);
@@ -435,7 +426,7 @@ public class Sakregister extends JFrame {
 			contentPane.add(lblKurs);
 			
 			label = new JLabel(" ");
-			label.setIcon(new ImageIcon(NyAktie.class.getResource("/javax/swing/plaf/metal/icons/ocean/question.png")));
+			label.setIcon(new ImageIcon(Sakregister.class.getResource("/javax/swing/plaf/metal/icons/ocean/question.png")));  //kan skapa errors
 			label.setBounds(10, 14, 31, 32);
 			contentPane.add(label);
 			
@@ -445,17 +436,18 @@ public class Sakregister extends JFrame {
 			btnOkAktie.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (txtAktieNamn != null && txtAntalAktie != null && txtAktieKurs != null ){//check instead .equals?
-						NyAktie1 nyak = new NyAktie1();
-						
-						Aktie ak = new Aktie(getAktieNamn(), getAktieAntal(), getAktieKurs());
-						//Smycke ms = new Smycke(getNamn(), getAdelsten(), isGold); //Trace
-						allaAktie.add(ak);
-					} else {
-						System.err.println("A Field is Empty");
-						Fel1 problemaktie = new Fel1();
-						problemaktie.setVisible(true);
-					}
+										
+					try {
+						if (txtAktieNamn != null && txtAntalAktie != null && txtAktieKurs != null ){
+							NyAktie1 nyak = new NyAktie1();							
+							Aktie ak = new Aktie(getAktieNamn(), getAktieAntal(), getAktieKurs());						
+							alla.add(ak);
+						}
+							
+					} catch (NumberFormatException e1) {
+						Fel1 aktfel = new Fel1();
+						aktfel.setVisible(true);					
+					}dispose();
 					
 				}
 												
@@ -464,24 +456,28 @@ public class Sakregister extends JFrame {
 			btnCancelAktie = new JButton("Cancel");
 			btnCancelAktie.setBounds(127, 88, 89, 23);
 			contentPane.add(btnCancelAktie);
-			
-			
+			btnCancelAktie.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					dispose();				
+				}
+			});						
 		}
 		
 		public String getAktieNamn() {
 			return txtAktieNamn.getText();
 		}	
 		public int getAktieAntal(){
-			return Integer.parseInt(txtAktieKurs.getText());
+			return Integer.parseInt(txtAntalAktie.getText());
 		}
-		public float getAktieKurs(){			
-			return Float.parseFloat(txtAntalAktie.getText());
+		public float getAktieKurs(){					
+			return Float.parseFloat(txtAktieKurs.getText());
 		}
 
 		
 
 	}
-	
+	/** NySmycke */
 	class NyttSmycke1 extends JFrame {
 
 		private JPanel contentPane;
@@ -490,11 +486,9 @@ public class Sakregister extends JFrame {
 		private JButton btnOkSmycke;
 		private JButton btnCancelSmycke;
 		private JLabel lblImage;
-		boolean isGold = false;  //perhaps inside
-
+		private boolean isGold = false;
+		
 		NyttSmycke1(){
-			
-			
 			setTitle("Nytt Smycke");
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			setBounds(100, 100, 268, 161);
@@ -530,12 +524,10 @@ public class Sakregister extends JFrame {
 						isGold = true;
 					} else {
 						isGold = false;
-					}  //throwable here if ever
+					}
 				}
 			});
-			
-			//button if Textbox empty && button pressed = throw error.
-			
+
 			btnOkSmycke = new JButton("OK");
 			btnOkSmycke.setBounds(58, 90, 64, 23);
 			contentPane.add(btnOkSmycke);
@@ -545,16 +537,17 @@ public class Sakregister extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					
 					try {
-						if (txtsmyckeStenar != null && getAdelsten() != 0){  //flag for problem
-							NyttSmycke1 nysmy = new NyttSmycke1(); //super recursive???				
-							Smycke ms = new Smycke(getNamn(), getAdelsten(), isGold); //Trace
-							allaSmycke.add(ms);
+						if (txtsmyckeStenar != null && getAdelsten() != 0){
+							NyttSmycke1 nysmy = new NyttSmycke1();			
+							Smycke ms = new Smycke(getNamn(), getAdelsten(), isGold);
+							alla.add(ms);
 							
 						}
 							
 					} catch (NumberFormatException e1) {
-						JOptionPane.showMessageDialog(Sakregister.this, "Fel indata!");
-					}
+						Fel1 smyckFel = new Fel1();
+						smyckFel.setVisible(true);					
+					} dispose();
 					
 				}
 												
@@ -563,27 +556,31 @@ public class Sakregister extends JFrame {
 			btnCancelSmycke = new JButton("Cancel");
 			btnCancelSmycke.setBounds(127, 90, 87, 23);
 			contentPane.add(btnCancelSmycke);
+			btnCancelSmycke.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					dispose();
+					
+					
+				}
+			});		
 			
 			lblImage = new JLabel("");
-			lblImage.setIcon(new ImageIcon(NyttSmycke.class.getResource("/javax/swing/plaf/metal/icons/ocean/question.png")));
+			lblImage.setIcon(new ImageIcon(Sakregister.class.getResource("/javax/swing/plaf/metal/icons/ocean/question.png")));
 			lblImage.setBounds(23, 14, 37, 39);
 			contentPane.add(lblImage);
 		}
 		
 		public String getNamn() {
 			return txtSmyckeNamn.getText();
-		}		
-		
-		
-		
-		public int getAdelsten() {  //parsed here
+		}				
+		public int getAdelsten() {
 			return Integer.parseInt(txtsmyckeStenar.getText());
 		}
 		public Boolean checkGold() {  //uppercasted Boolean 'normally' boolean.
 			return isGold;
-		}
-				
-		public int getValue(){ //getValue of this class each one has diff GetVal
+		}				
+		public int getValue(){
 			int kost;
 			int smyckePris;
 			if(isGold == false){
@@ -591,24 +588,22 @@ public class Sakregister extends JFrame {
 			} else {
 				kost = 700;
 			}
-			smyckePris = ( Integer.parseInt(txtsmyckeStenar.getText()) * 500 ) + kost;  //used to be adelstenar
-			return smyckePris;				//parseFloat? .2%f
+			smyckePris = ( Integer.parseInt(txtsmyckeStenar.getText()) * 500 ) + kost;
+			return smyckePris;
 		}
 		
 		public String toString(){
 			return null;						
-//			return "Smycke: " + txtSmyckeNamn + " Värde:" + getValue()
-//					+ " stenar:"+Integer.parseInt(txtsmyckeStenar.getText())+ " silver";
-		} //FIND A WAY TO PARSE FLOAT TO CERTAIN DECIMAL //Check helpdoc in Git
-		  //getValue is a really ugly way to mess things up
+		}
 	}
 	
-	class Fel1 extends JFrame { //have internal Fel per nested class?
+	
+	/**  Class Fel poppup **/
+	class Fel1 extends JFrame {
 
 		private JPanel contentPane;
 
 		public Fel1() {
-//			JTextField status = new JTextField(10);   //masterlist get bool
 			setTitle("Fel");
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			setBounds(100, 100, 174, 121);
@@ -628,24 +623,14 @@ public class Sakregister extends JFrame {
 			btnOkFel.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e){
-					Fel1.getFrames();  //close window  //placeholder getFrames per now.
-					
-					
-					
-				}
-				
+					dispose();
+				}				
 			});
 			
 			JLabel label = new JLabel("");
-			label.setIcon(new ImageIcon(Fel.class.getResource("/javax/swing/plaf/metal/icons/ocean/error.png")));
+			label.setIcon(new ImageIcon(Sakregister.class.getResource("/javax/swing/plaf/metal/icons/ocean/error.png")));
 			label.setBounds(14, 11, 32, 42);
 			contentPane.add(label);
 		}		
-//		public String getNamn() {
-//			return status.getText();
-//		}
-	}
-
-	
-	
+	}	
 }
